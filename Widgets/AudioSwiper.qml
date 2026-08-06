@@ -8,6 +8,8 @@ import qs.Generics as Gen
 Rectangle {
   id: audRect
 
+  property string outputName: ""
+
   Layout.minimumWidth: swiper.currentItem?.contentWidth + 20
   clip: true
   color: Dat.Colors.current.primary_container
@@ -27,6 +29,7 @@ Rectangle {
 
     Text {
       color: Dat.Colors.current.on_primary_container
+      font.family: "NotoSansM Nerd Font Propo"
       font.pointSize: 11
       height: audRect.height
       horizontalAlignment: Text.AlignHCenter
@@ -46,12 +49,12 @@ Rectangle {
             Dat.Audio.toggleMute(Dat.Audio.sink);
             break;
           case Qt.LeftButton:
-            if (Dat.Globals.notchState == "FULLY_EXPANDED" && Dat.Globals.swipeIndex == 4 && Dat.Globals.settingsTabIndex == 1) {
-              Dat.Globals.notchState = "EXPANDED";
+            if (Dat.Globals.notchState(audRect.outputName) == "FULLY_EXPANDED" && Dat.Globals.swipeIndex(audRect.outputName) == 4 && Dat.Globals.settingsTabIndex(audRect.outputName) == 1) {
+              Dat.Globals.setNotchState(audRect.outputName, "EXPANDED");
             } else {
-              Dat.Globals.notchState = "FULLY_EXPANDED";
-              Dat.Globals.swipeIndex = 4;
-              Dat.Globals.settingsTabIndex = 1;
+              Dat.Globals.setNotchState(audRect.outputName, "FULLY_EXPANDED");
+              Dat.Globals.setSwipeIndex(audRect.outputName, 4);
+              Dat.Globals.setSettingsTabIndex(audRect.outputName, 1);
             }
             break;
           }
@@ -62,6 +65,7 @@ Rectangle {
 
     Text {
       color: Dat.Colors.current.on_primary_container
+      font.family: "NotoSansM Nerd Font Propo"
       font.pointSize: 11
       height: audRect.height
       horizontalAlignment: Text.AlignHCenter
@@ -81,12 +85,12 @@ Rectangle {
             Dat.Audio.toggleMute(Dat.Audio.source);
             break;
           case Qt.LeftButton:
-            if (Dat.Globals.notchState == "FULLY_EXPANDED" && Dat.Globals.swipeIndex == 4 && Dat.Globals.settingsTabIndex == 1) {
-              Dat.Globals.notchState = "EXPANDED";
+            if (Dat.Globals.notchState(audRect.outputName) == "FULLY_EXPANDED" && Dat.Globals.swipeIndex(audRect.outputName) == 4 && Dat.Globals.settingsTabIndex(audRect.outputName) == 1) {
+              Dat.Globals.setNotchState(audRect.outputName, "EXPANDED");
             } else {
-              Dat.Globals.notchState = "FULLY_EXPANDED";
-              Dat.Globals.swipeIndex = 4;
-              Dat.Globals.settingsTabIndex = 1;
+              Dat.Globals.setNotchState(audRect.outputName, "FULLY_EXPANDED");
+              Dat.Globals.setSwipeIndex(audRect.outputName, 4);
+              Dat.Globals.setSettingsTabIndex(audRect.outputName, 1);
             }
             break;
           }

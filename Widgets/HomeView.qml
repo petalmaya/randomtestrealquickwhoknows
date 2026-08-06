@@ -9,6 +9,11 @@ import qs.Data as Dat
 import qs.Widgets as Wid
 
 Item {
+  id: root
+
+  property string outputName: ""
+  readonly property string curNotchState: Dat.Globals.notchState(root.outputName)
+
   ColumnLayout {
     anchors.fill: parent
     anchors.margins: 3
@@ -128,12 +133,14 @@ Item {
           }
         }
 
-        Component.onCompleted: {
-          Dat.Globals.notchStateChanged.connect(() => {
-            if (Dat.Globals.notchState != "FULLY_EXPANDED") {
+        Connections {
+          function onCurNotchStateChanged() {
+            if (root.curNotchState != "FULLY_EXPANDED") {
               stack.pop();
             }
-          });
+          }
+
+          target: root
         }
       }
     }

@@ -2,9 +2,14 @@ import QtQuick
 import QtQuick.Layouts
 
 import qs.Data as Dat
+import qs.Generics as Gen
 import qs.Widgets as Wid
 
 RowLayout {
+  id: root
+
+  property string outputName: ""
+
   // Left
   Item {
     Layout.fillHeight: true
@@ -16,17 +21,20 @@ RowLayout {
 
       Wid.WorkspacePill {
         Layout.leftMargin: 5
+        outputName: root.outputName
       }
 
       Wid.MprisDot {
         implicitHeight: 20
         implicitWidth: 20
+        outputName: root.outputName
         radius: 20
       }
 
       Wid.RecordingDot {
         implicitHeight: 20
         implicitWidth: 20
+        outputName: root.outputName
       }
     }
   }
@@ -37,6 +45,7 @@ RowLayout {
     Layout.fillWidth: true
 
     Wid.TimePill {
+      outputName: root.outputName
     }
   }
 
@@ -52,36 +61,38 @@ RowLayout {
       layoutDirection: Qt.RightToLeft
       spacing: 8
 
-      Text {
+      Gen.NerdIcon {
         Layout.fillWidth: false
         // little arrow to toggle notch expand states
         Layout.rightMargin: 5
         color: Dat.Colors.current.primary
         font.pointSize: 11
-        text: (Dat.Globals.notchState == "FULLY_EXPANDED") ? "" : ""
+        icon: (Dat.Globals.notchState(root.outputName) == "FULLY_EXPANDED") ? "" : ""
         verticalAlignment: Text.AlignVCenter
 
         MouseArea {
           anchors.fill: parent
 
           onClicked: mevent => {
-            if (Dat.Globals.notchState == "EXPANDED") {
-              Dat.Globals.notchState = "FULLY_EXPANDED";
+            if (Dat.Globals.notchState(root.outputName) == "EXPANDED") {
+              Dat.Globals.setNotchState(root.outputName, "FULLY_EXPANDED");
               return;
             }
 
-            Dat.Globals.notchState = "EXPANDED";
+            Dat.Globals.setNotchState(root.outputName, "EXPANDED");
           }
         }
       }
 
       Wid.BatteryPill {
         implicitHeight: 20
+        outputName: root.outputName
         radius: 20
       }
 
       Wid.AudioSwiper {
         implicitHeight: 20
+        outputName: root.outputName
         radius: 20
       }
 

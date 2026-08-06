@@ -37,12 +37,12 @@ Repeater {
       onClicked: mevent => dot.modelData.action(mevent)
     }
 
-    Text {
+    Gen.NerdIcon {
       anchors.centerIn: parent
       color: Dat.Colors.current.on_primary
       font.bold: true
       font.pointSize: 12 * Dat.Globals.notchScale
-      text: dot.modelData.text
+      icon: dot.modelData.text
     }
   }
 }

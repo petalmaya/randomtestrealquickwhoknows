@@ -6,6 +6,10 @@ import qs.Data as Dat
 import qs.Widgets as Wid
 
 Item {
+  id: root
+
+  property string outputName: ""
+
   ColumnLayout {
     anchors.fill: parent
     anchors.topMargin: this.spacing
@@ -20,12 +24,12 @@ Item {
       RowLayout {
         id: tabLay
 
-        property int activeIndex: Dat.Globals.settingsTabIndex
+        property int activeIndex: Dat.Globals.settingsTabIndex(root.outputName)
 
         anchors.fill: parent
 
         Repeater {
-          model: ["Power", "Audio", "Kuru"]
+          model: ["Power", "Audio", "Kuru", "Wallpaper"]
 
           Item {
             id: tabRect
@@ -111,7 +115,7 @@ Item {
                 // TODO hover animation
                 // onContainsMouseChanged: parent.opacity += (containsMouse)? 0.2 : -0.2
                 onClicked: mevent => {
-                  Dat.Globals.settingsTabIndex = tabRect.index;
+                  Dat.Globals.setSettingsTabIndex(root.outputName, tabRect.index);
                 }
               }
             }
@@ -157,6 +161,20 @@ Item {
       // TODO: maybe write a script of my own?
       Wid.KuruTweaksTab {
         opacity: visible ? 1 : 0
+
+        Behavior on opacity {
+          NumberAnimation {
+            duration: Dat.MaterialEasing.emphasizedAccelTime
+            easing.bezierCurve: Dat.MaterialEasing.emphasizedAccel
+          }
+        }
+      }
+
+      Wid.WallpaperTab {
+        Layout.fillHeight: true
+        Layout.fillWidth: true
+        opacity: visible ? 1 : 0
+        outputName: root.outputName
 
         Behavior on opacity {
           NumberAnimation {

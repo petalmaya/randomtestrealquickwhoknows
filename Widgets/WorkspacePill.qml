@@ -1,6 +1,5 @@
 import QtQuick
 import QtQuick.Layouts
-import Quickshell.Hyprland
 import Quickshell.Wayland
 
 import qs.Data as Dat
@@ -8,6 +7,8 @@ import qs.Generics as Gen
 
 Rectangle {
   id: root
+
+  property string outputName: ""
 
   clip: true
   color: Dat.Colors.current.primary_container
@@ -41,8 +42,10 @@ Rectangle {
 
         anchors.centerIn: parent
         color: Dat.Colors.current.on_primary
+        font.family: "Rubik"
         font.pointSize: 10
-        text: Hyprland.focusedWorkspace?.id ?? Dat.MangoWC.currentWorkspace
+        font.weight: Font.Medium
+        text: Dat.MangoWC.active ? Dat.MangoWC.currentWorkspace : Dat.Niri.workspaceFor(root.outputName)
       }
     }
 
@@ -54,7 +57,11 @@ Rectangle {
       Layout.maximumWidth: 100
       color: Dat.Colors.current.on_primary_container
       elide: Text.ElideRight
+      font.capitalization: Font.Capitalize
+      font.family: "Rubik"
+      font.letterSpacing: 0.1
       font.pointSize: 11
+      font.weight: Font.Medium
       text: Dat.Globals.actWinName
     }
   }
@@ -64,16 +71,22 @@ Rectangle {
     layerRadius: 20
 
     onClicked: {
-      if (Dat.Globals.notchState == "FULLY_EXPANDED" && Dat.Globals.swipeIndex == 2) {
-        Dat.Globals.notchState = "EXPANDED";
+      if (Dat.Globals.notchState(root.outputName) == "FULLY_EXPANDED" && Dat.Globals.swipeIndex(root.outputName) == 2) {
+        Dat.Globals.setNotchState(root.outputName, "EXPANDED");
       } else {
-        Dat.Globals.notchState = "FULLY_EXPANDED";
-        Dat.Globals.swipeIndex = 2;
+        Dat.Globals.setNotchState(root.outputName, "FULLY_EXPANDED");
+        Dat.Globals.setSwipeIndex(root.outputName, 2);
       }
     }
     onWheel: event => {
-      if (event.angleDelta.y < 0 || Hyprland.focusedWorkspace?.id > 1)
-        Hyprland.dispatch(`workspace r${event.angleDelta.y > 0 ? "-" : "+"}1`);
+      if (!Dat.Niri.active) {
+        return;
+      }
+      if (event.angleDelta.y > 0) {
+        Dat.Niri.focusPrev(root.outputName);
+      } else {
+        Dat.Niri.focusNext(root.outputName);
+      }
     }
   }
 }

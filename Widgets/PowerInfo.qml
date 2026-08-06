@@ -16,6 +16,7 @@ RowLayout {
     Text {
       anchors.fill: parent
       color: Dat.Colors.current.on_surface
+      font.family: "NotoSansM Nerd Font Propo"
       font.pointSize: 10
       horizontalAlignment: Text.AlignLeft
       text: "󰂏 " + info.bat.energyCapacity.toFixed(2)
@@ -61,6 +62,7 @@ RowLayout {
     Text {
       anchors.fill: parent
       color: Dat.Colors.current.on_surface
+      font.family: "NotoSansM Nerd Font Propo"
       font.pointSize: 10
       horizontalAlignment: Text.AlignRight
       text: "󱐋 " + info.bat.changeRate.toFixed(2)

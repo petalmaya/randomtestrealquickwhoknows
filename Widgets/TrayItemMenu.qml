@@ -119,6 +119,7 @@ Rectangle {
 
             anchors.fill: parent
             color: (entry.modelData?.enabled) ? Dat.Colors.current.on_surface : Dat.Colors.current.primary
+            elide: Text.ElideRight
             font.pointSize: 11
             text: entry.modelData?.text ?? ""
             verticalAlignment: Text.AlignVCenter
@@ -143,11 +144,11 @@ Rectangle {
           implicitWidth: this.height
           visible: entry.modelData?.hasChildren ?? false
 
-          Text {
+          Gen.NerdIcon {
             anchors.centerIn: parent
             color: Dat.Colors.current.on_surface
             font.pointSize: 11
-            text: ""
+            icon: ""
           }
         }
       }

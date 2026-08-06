@@ -8,6 +8,7 @@ Item {
   property alias closeTimer: popupClose
   property bool closed: true
   property var currentNotif: stack.currentItem
+  property string outputName: ""
 
   function pushNotif(e) {
     if (Dat.NotifServer.dndEnabled) {
@@ -24,11 +25,11 @@ Item {
       "view": stack,
       "popup": popupRect
     });
-    if (Dat.Globals.notifState == "HIDDEN") {
-      Dat.Globals.notifState = "POPUP";
+    if (Dat.Globals.notifState(popupRect.outputName) == "HIDDEN") {
+      Dat.Globals.setNotifState(popupRect.outputName, "POPUP");
       popupRect.closed = false;
       popupClose.start();
-    } else if (Dat.Globals.notifState == "POPUP") {
+    } else if (Dat.Globals.notifState(popupRect.outputName) == "POPUP") {
       popupRect.closed = false;
       popupClose.restart();
     }
@@ -44,9 +45,9 @@ Item {
     });
 
     stack.depthChanged.connect(() => {
-      if (stack.depth == 0 && Dat.Globals.notifState == "POPUP") {
+      if (stack.depth == 0 && Dat.Globals.notifState(popupRect.outputName) == "POPUP") {
         popupClose.running = false;
-        Dat.Globals.notifState = "HIDDEN";
+        Dat.Globals.setNotifState(popupRect.outputName, "HIDDEN");
       }
     });
   }
@@ -95,8 +96,8 @@ Item {
 
     onTriggered: {
       popupRect.closed = true;
-      if (Dat.Globals.notifState != "INBOX") {
-        Dat.Globals.notifState = "HIDDEN";
+      if (Dat.Globals.notifState(popupRect.outputName) != "INBOX") {
+        Dat.Globals.setNotifState(popupRect.outputName, "HIDDEN");
       }
     }
   }
@@ -105,7 +106,7 @@ Item {
     id: stackClearTimer
 
     interval: 500
-    running: Dat.Globals.notifState == "HIDDEN"
+    running: Dat.Globals.notifState(popupRect.outputName) == "HIDDEN"
 
     onTriggered: stack.clear()
   }

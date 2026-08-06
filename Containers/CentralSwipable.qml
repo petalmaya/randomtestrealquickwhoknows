@@ -8,6 +8,10 @@ import qs.Data as Dat
 import qs.Widgets as Wid
 
 Item {
+  id: root
+
+  property string outputName: ""
+
   RowLayout {
     anchors.fill: parent
     spacing: 8
@@ -40,14 +44,14 @@ Item {
             implicitHeight: this.implicitWidth
             implicitWidth: 20
 
-            Text {
+            Gen.NerdIcon {
               id: dotText
 
               anchors.centerIn: parent
               color: Dat.Colors.current.on_surface
               font.pointSize: 11
               state: (swipeArea.currentIndex == tabDot.index) ? "ACTIVE" : "INACTIVE"
-              text: tabDot.modelData
+              icon: tabDot.modelData
 
               states: [
                 State {
@@ -113,29 +117,29 @@ Item {
       SwipeView {
         id: swipeArea
 
+        readonly property int globalSwipeIndex: Dat.Globals.swipeIndex(root.outputName)
+
         anchors.fill: parent
         orientation: Qt.Horizontal
 
-        Component.onCompleted: () => {
-          Dat.Globals.swipeIndexChanged.connect(() => {
-            if (swipeArea.currentIndex != Dat.Globals.swipeIndex) {
-              swipeArea.currentIndex = Dat.Globals.swipeIndex;
+        Connections {
+          function onGlobalSwipeIndexChanged() {
+            if (swipeArea.currentIndex != swipeArea.globalSwipeIndex) {
+              swipeArea.currentIndex = swipeArea.globalSwipeIndex;
             }
-          });
+          }
 
-        // FOR DEBUGGING
-        // swipeArea.currentIndex = 4;
-        // Dat.Globals.settingsTabIndex = 2;
-        // Dat.Globals.notchState = "FULLY_EXPANDED";
+          target: swipeArea
         }
         onCurrentIndexChanged: () => {
-          if (swipeArea.currentIndex != Dat.Globals.swipeIndex) {
-            Dat.Globals.swipeIndex = swipeArea.currentIndex;
+          if (swipeArea.currentIndex != swipeArea.globalSwipeIndex) {
+            Dat.Globals.setSwipeIndex(root.outputName, swipeArea.currentIndex);
           }
         }
 
         Wid.HomeView {
           height: swipeRect.height
+          outputName: root.outputName
           width: swipeRect.width
         }
 
@@ -146,16 +150,19 @@ Item {
 
         Wid.SystemView {
           height: swipeRect.height
+          outputName: root.outputName
           width: swipeRect.width
         }
 
         Wid.MusicView {
           height: swipeRect.height
+          outputName: root.outputName
           width: swipeRect.width
         }
 
         Wid.SettingsView {
           height: swipeRect.height
+          outputName: root.outputName
           width: swipeRect.width
         }
       }

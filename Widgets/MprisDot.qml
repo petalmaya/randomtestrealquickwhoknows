@@ -5,17 +5,21 @@ import qs.Data as Dat
 import qs.Generics as Gen
 
 Rectangle {
+  id: root
+
+  property string outputName: ""
+
   color: Dat.Colors.current.surface_container_high
   visible: Mpris.players.values.length
 
-  Text {
+  Gen.NerdIcon {
     id: icon
 
     anchors.centerIn: parent
     color: Dat.Colors.current.tertiary
     font.pointSize: 11
+    icon: "󰽰"
     rotation: Dat.Globals.mprisDotRotation
-    text: "󰽰"
 
     // MAKE SURE THIS IS THE SAME AS MPRIS ITEM's
     Behavior on rotation {
@@ -31,11 +35,11 @@ Rectangle {
     layerColor: Dat.Colors.current.tertiary
 
     onClicked: mevent => {
-      if (Dat.Globals.notchState == "FULLY_EXPANDED" && Dat.Globals.swipeIndex == 3) {
-        Dat.Globals.notchState = "EXPANDED";
+      if (Dat.Globals.notchState(root.outputName) == "FULLY_EXPANDED" && Dat.Globals.swipeIndex(root.outputName) == 3) {
+        Dat.Globals.setNotchState(root.outputName, "EXPANDED");
       } else {
-        Dat.Globals.notchState = "FULLY_EXPANDED";
-        Dat.Globals.swipeIndex = 3;
+        Dat.Globals.setNotchState(root.outputName, "FULLY_EXPANDED");
+        Dat.Globals.setSwipeIndex(root.outputName, 3);
       }
     }
   }

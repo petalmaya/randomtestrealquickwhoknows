@@ -8,6 +8,8 @@ import qs.Generics as Gen
 Rectangle {
   id: root
 
+  property string outputName: ""
+
   readonly property bool batCharging: UPower.displayDevice.state == UPowerDeviceState.Charging
   readonly property string batIcon: batIcons[10 - Math.round(batPercentage * 10)]
   // Preserved in memory of the horrors I leave behind
@@ -70,11 +72,11 @@ Rectangle {
       implicitWidth: this.height
       radius: this.height
 
-      Text {
+      Gen.NerdIcon {
         anchors.centerIn: parent
         color: Dat.Colors.current.on_primary
         font.pointSize: (mArea.containsMouse || !root.hasBattery) ? 9 : 11
-        text: (mArea.containsMouse || !root.hasBattery) ? root.profileIcon : ((root.batCharging) ? root.chargeIcon : root.batIcon)
+        icon: (mArea.containsMouse || !root.hasBattery) ? root.profileIcon : ((root.batCharging) ? root.chargeIcon : root.batIcon)
       }
     }
   }
@@ -82,7 +84,7 @@ Rectangle {
   Timer {
     interval: 600
     repeat: true
-    running: root.batCharging && (Dat.Globals.notchState != "COLLAPSED")
+    running: root.batCharging && (Dat.Globals.notchState(root.outputName) != "COLLAPSED")
 
     onTriggered: () => {
       root.chargeIconIndex = root.chargeIconIndex % 10;
@@ -96,12 +98,12 @@ Rectangle {
     layerColor: Dat.Colors.current.on_primary
 
     onClicked: {
-      if (Dat.Globals.notchState == "FULLY_EXPANDED" && Dat.Globals.swipeIndex == 4 && Dat.Globals.settingsTabIndex == 0) {
-        Dat.Globals.notchState = "EXPANDED";
+      if (Dat.Globals.notchState(root.outputName) == "FULLY_EXPANDED" && Dat.Globals.swipeIndex(root.outputName) == 4 && Dat.Globals.settingsTabIndex(root.outputName) == 0) {
+        Dat.Globals.setNotchState(root.outputName, "EXPANDED");
       } else {
-        Dat.Globals.notchState = "FULLY_EXPANDED";
-        Dat.Globals.swipeIndex = 4;
-        Dat.Globals.settingsTabIndex = 0;
+        Dat.Globals.setNotchState(root.outputName, "FULLY_EXPANDED");
+        Dat.Globals.setSwipeIndex(root.outputName, 4);
+        Dat.Globals.setSettingsTabIndex(root.outputName, 0);
       }
     }
   }

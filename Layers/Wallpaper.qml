@@ -10,6 +10,8 @@ WlrLayershell {
 
   required property ShellScreen modelData
 
+  readonly property string outputWallSrc: Dat.Config.wallpaperFor(modelData.name)
+
   anchors.bottom: true
   anchors.left: true
   anchors.right: true
@@ -18,10 +20,17 @@ WlrLayershell {
   exclusionMode: ExclusionMode.Ignore
   focusable: false
   implicitHeight: 28
-  layer: WlrLayer.Bottom
-  namespace: "rexies.notch.background"
+  layer: WlrLayer.Background
+  namespace: "wallpaper"
   screen: modelData
   surfaceFormat.opaque: false
+
+  onOutputWallSrcChanged: {
+    if (walAnimation.running) {
+      walAnimation.complete();
+    }
+    animatingWal.source = layerRoot.outputWallSrc;
+  }
 
   Wid.Wallpaper {
     id: wallpaper
@@ -30,14 +39,8 @@ WlrLayershell {
     source: ""
 
     Component.onCompleted: {
-      source = Dat.Config.data.wallSrc;
+      source = layerRoot.outputWallSrc;
 
-      Dat.Config.data.wallSrcChanged.connect(() => {
-        if (walAnimation.running) {
-          walAnimation.complete();
-        }
-        animatingWal.source = Dat.Config.data.wallSrc;
-      });
       animatingWal.statusChanged.connect(() => {
         if (animatingWal.status == Image.Ready) {
           walAnimation.start();

@@ -30,12 +30,12 @@ Item {
     smooth: true
     source: {
       // adapted from soramanew
-      const icon = root.modelData?.icon;
+      const icon = root.modelData?.icon ?? "";
       if (icon.includes("?path=")) {
         const [name, path] = icon.split("?path=");
         return `file://${path}/${name.slice(name.lastIndexOf("/") + 1)}`;
       }
-      return root.modelData.icon;
+      return icon;
     }
     width: 18
 
@@ -83,6 +83,6 @@ Item {
   QsMenuOpener {
     id: trayMenu
 
-    menu: root.modelData?.menu
+    menu: root.modelData?.menu ?? null
   }
 }

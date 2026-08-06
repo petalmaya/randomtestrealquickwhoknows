@@ -96,11 +96,11 @@ Rectangle {
                   radius: this.width
                   width: 35
 
-                  Text {
+                  Gen.NerdIcon {
                     anchors.centerIn: parent
                     color: Dat.Colors.current.on_primary
                     font.pointSize: 16
-                    text: itemRoot.modelData.icon
+                    icon: itemRoot.modelData.icon
                   }
                 }
               }
@@ -163,10 +163,10 @@ Rectangle {
               implicitHeight: this.implicitWidth
               implicitWidth: slider.width
 
-              Text {
+              Gen.NerdIcon {
                 anchors.centerIn: parent
                 color: Dat.Colors.current.on_surface
-                text: parent.modelData
+                icon: parent.modelData
               }
             }
           }
@@ -187,10 +187,10 @@ Rectangle {
             }
           }
 
-          Text {
+          Gen.NerdIcon {
             anchors.centerIn: parent
             color: Dat.Colors.current.on_primary
-            text: switch (PowerProfiles.profile) {
+            icon: switch (PowerProfiles.profile) {
             case 0:
               "";
               break;

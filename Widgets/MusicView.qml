@@ -8,6 +8,10 @@ import qs.Data as Dat
 import qs.Widgets as Wid
 
 Item {
+  id: root
+
+  property string outputName: ""
+
   AnimatedImage {
     anchors.fill: parent
     fillMode: Image.PreserveAspectFit
@@ -43,6 +47,7 @@ Item {
         property bool readyToShow: false
 
         player: modelData
+        outputName: root.outputName
       }
     }
   }

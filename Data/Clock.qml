@@ -8,7 +8,7 @@ Singleton {
   SystemClock {
     id: sysClock
 
-    enabled: Globals.notchState != "COLLAPSED"
+    enabled: Globals.anyNotCollapsed
     precision: SystemClock.Seconds
   }
 }

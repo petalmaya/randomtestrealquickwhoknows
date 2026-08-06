@@ -2,7 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Effects
 import Quickshell.Services.Notifications
-import Quickshell.Hyprland
+import Quickshell
 
 import qs.Data as Dat
 import qs.Generics as Gen
@@ -174,7 +174,7 @@ Rectangle {
               if (hovLink == "") {
                 return;
               }
-              Hyprland.dispatch("exec xdg-open " + hovLink);
+              Quickshell.execDetached(["xdg-open", hovLink]);
             }
           }
         }

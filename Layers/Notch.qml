@@ -10,6 +10,8 @@ WlrLayershell {
 
   required property ShellScreen modelData
 
+  readonly property string curNotchState: Dat.Globals.notchState(notch.modelData.name)
+
   anchors.left: true
   anchors.right: true
   anchors.top: true
@@ -47,8 +49,8 @@ WlrLayershell {
     bottomLeftRadius: 20
     bottomRightRadius: 20
     clip: true
-    color: Dat.Colors.withAlpha(Dat.Colors.current.background, (Dat.Globals.actWinName == "desktop" && Dat.Globals.notchState != "FULLY_EXPANDED") ? 0.79 : 0.89)
-    state: Dat.Globals.notchState
+    color: Dat.Colors.withAlpha(Dat.Colors.current.background, (Dat.Globals.actWinName == "desktop" && notch.curNotchState != "FULLY_EXPANDED") ? 0.79 : 0.89)
+    state: notch.curNotchState
 
     Behavior on color {
       ColorAnimation {
@@ -252,14 +254,14 @@ WlrLayershell {
           return;
         }
 
-        if (Dat.Globals.notchState == "FULLY_EXPANDED" || Dat.Globals.actWinName == "desktop" || Dat.Config.data.reservedShell) {
+        if (notch.curNotchState == "FULLY_EXPANDED" || Dat.Globals.actWinName == "desktop" || Dat.Config.data.reservedShell) {
           return;
         }
 
         if (notchArea.containsMouse) {
-          Dat.Globals.notchState = "EXPANDED";
+          Dat.Globals.setNotchState(notch.modelData.name, "EXPANDED");
         } else {
-          Dat.Globals.notchState = "COLLAPSED";
+          Dat.Globals.setNotchState(notch.modelData.name, "COLLAPSED");
         }
       }
 
@@ -268,7 +270,7 @@ WlrLayershell {
 
       Component.onCompleted: fExpToExpTS.runningChanged.connect(notchArea.revealOrCollapse)
       onContainsMouseChanged: {
-        Dat.Globals.notchHovered = notchArea.containsMouse;
+        Dat.Globals.setNotchHovered(notch.modelData.name, notchArea.containsMouse);
         notchArea.revealOrCollapse();
       }
       onPositionChanged: mevent => {
@@ -280,14 +282,14 @@ WlrLayershell {
 
         // swipe down behaviour
         if (velocity < -notchArea.sensitivity) {
-          Dat.Globals.notchState = "FULLY_EXPANDED";
+          Dat.Globals.setNotchState(notch.modelData.name, "FULLY_EXPANDED");
           notchArea.tracing = false;
           notchArea.velocity = 0;
         }
 
         // swipe up behaviour
         if (velocity > notchArea.sensitivity) {
-          Dat.Globals.notchState = "EXPANDED";
+          Dat.Globals.setNotchState(notch.modelData.name, "EXPANDED");
           notchArea.tracing = false;
           notchArea.velocity = 0;
         }
@@ -315,6 +317,7 @@ WlrLayershell {
           Layout.maximumHeight: notchRect.expandedHeight
           // makes collapse animation look a tiny bit neater
           Layout.minimumHeight: notchRect.expandedHeight - 10
+          outputName: notch.modelData.name
         }
 
         Con.Primary {
@@ -322,6 +325,7 @@ WlrLayershell {
 
           Layout.fillHeight: true
           Layout.fillWidth: true
+          outputName: notch.modelData.name
         }
       }
     }
@@ -342,7 +346,7 @@ WlrLayershell {
     anchors.topMargin: 10
     color: Dat.Colors.current.surface
     radius: 20
-    state: Dat.Globals.notifState
+    state: Dat.Globals.notifState(notch.modelData.name)
 
     states: [
       State {
@@ -606,17 +610,19 @@ WlrLayershell {
       }
     ]
 
-    Component.onCompleted: {
-      Dat.Globals.notchStateChanged.connect(() => {
-        switch (Dat.Globals.notchState) {
+    Connections {
+      function onCurNotchStateChanged() {
+        switch (notch.curNotchState) {
         case "FULLY_EXPANDED":
-          Dat.Globals.notifState = "INBOX";
+          Dat.Globals.setNotifState(notch.modelData.name, "INBOX");
           break;
         default:
-          Dat.Globals.notifState = (!popupRect?.closed ?? false) ? "POPUP" : "HIDDEN";
+          Dat.Globals.setNotifState(notch.modelData.name, (!popupRect?.closed ?? false) ? "POPUP" : "HIDDEN");
           break;
         }
-      });
+      }
+
+      target: notch
     }
 
     ColumnLayout {
@@ -627,6 +633,7 @@ WlrLayershell {
 
         Layout.fillHeight: true
         Layout.fillWidth: true
+        outputName: notch.modelData.name
       }
 
       Con.Inbox {

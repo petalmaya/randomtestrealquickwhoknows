@@ -16,9 +16,11 @@ with [this template](../../../../nixosModules/external/matugen/templates/quicksh
 ### Depencencies
 
 - quickshell
+- niri (or mangowc — both are auto-detected at runtime)
 - material-symbols
-- nerdfonts (noto)
+- nerdfonts (the wallpaper picker and glyph icons expect the patched Noto Sans Mono, "NotoSansM Nerd Font Propo")
 - [librebarcode](https://graphicore.github.io/librebarcode/) (should be available in the google-fonts package)
+- qt6declarative-labs (Qt.labs.folderlistmodel, Qt.labs.platform — used by the wallpaper picker)
 - qtmultimedia (prolly already installed on your system)
 - powerprofilesdaemon (optional)
 - brightnessctl (optional)

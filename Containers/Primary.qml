@@ -7,6 +7,8 @@ import qs.Containers as Con
 Rectangle {
   id: root
 
+  property string outputName: ""
+
   color: Dat.Colors.withAlpha(Dat.Colors.current.surface, 0.9)
   radius: 20
 
@@ -17,11 +19,13 @@ Rectangle {
     Con.CentralSwipable {
       Layout.fillHeight: true
       Layout.fillWidth: true
+      outputName: root.outputName
     }
 
     KuruKuru {
       Layout.fillHeight: true
       Layout.fillWidth: true
+      outputName: root.outputName
     }
   }
 }

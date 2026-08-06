@@ -4,6 +4,8 @@ import qs.Data as Dat
 Item {
   id: root
 
+  property string outputName: ""
+
   visible: Dat.Recording.running
 
   Rectangle {
@@ -19,7 +21,7 @@ Item {
   Timer {
     interval: 600
     repeat: true
-    running: Dat.Globals.notifState != "COLLAPSED" && root.visible
+    running: Dat.Globals.notifState(root.outputName) != "COLLAPSED" && root.visible
     triggeredOnStart: true
 
     onTriggered: recordDot.visible = !recordDot.visible

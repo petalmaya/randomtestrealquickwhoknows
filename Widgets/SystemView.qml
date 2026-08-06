@@ -1,6 +1,5 @@
 pragma ComponentBehavior: Bound
 import QtQuick
-import Quickshell.Hyprland
 import QtQuick.Layouts
 import QtQuick.Effects
 import QtQuick.Controls
@@ -14,6 +13,7 @@ Item {
 
   property int index: SwipeView.index
   property bool isCurrent: SwipeView.isCurrentItem
+  property string outputName: ""
 
   RowLayout {
     anchors.fill: parent
@@ -54,7 +54,7 @@ Item {
         Timer {
           interval: 500
           repeat: true
-          running: Dat.Globals.notchState == "FULLY_EXPANDED" && root.isCurrent
+          running: Dat.Globals.notchState(root.outputName) == "FULLY_EXPANDED" && root.isCurrent
           triggeredOnStart: true
 
           onTriggered: parent.rotation = (parent.rotation + 3) % 360
@@ -91,14 +91,14 @@ Item {
               Layout.fillWidth: true
               Layout.topMargin: 20
 
-              Text {
-                id: hyprIcon
+              Gen.NerdIcon {
+                id: wmIcon
 
                 anchors.fill: parent
                 color: Dat.Colors.current.primary
                 font.pointSize: 32 * Dat.Globals.notchScale
                 horizontalAlignment: Text.AlignHCenter
-                text: ""
+                icon: ""
                 verticalAlignment: Text.AlignVCenter
               }
             }
@@ -117,7 +117,7 @@ Item {
 
                   Rectangle {
                     required property int index
-                    property int workspace: Hyprland.focusedWorkspace?.id ?? Dat.MangoWC.currentWorkspace
+                    property int workspace: Dat.MangoWC.active ? Dat.MangoWC.currentWorkspace : Dat.Niri.workspaceFor(root.outputName)
 
                     Layout.fillHeight: true
                     Layout.fillWidth: true
@@ -127,7 +127,13 @@ Item {
                     Gen.MouseArea {
                       layerColor: Dat.Colors.current.primary
 
-                      onClicked: Hyprland.dispatch("workspace " + (parent.index + 1)) ?? Dat.MangoWC.setCurrentTag(parent.index + 1)
+                      onClicked: {
+                        if (Dat.MangoWC.active) {
+                          Dat.MangoWC.setCurrentTag(parent.index + 1);
+                        } else {
+                          Dat.Niri.setCurrentTag(parent.index + 1, root.outputName);
+                        }
+                      }
                     }
                   }
                 }

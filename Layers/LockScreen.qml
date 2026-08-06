@@ -11,13 +11,20 @@ Scope {
   id: root
 
   property alias lock: lock
-  property string prevState
+  // output name -> notchState it had right before we locked, so unlocking
+  // restores every monitor's bar to how it was, not just one
+  property var prevStateByOutput: ({})
 
   WlSessionLock {
     id: lock
 
     onLockedChanged: {
-      Dat.Globals.notchState = root.prevState;
+      if (lock.locked)
+        return;
+      for (const screen of Quickshell.screens) {
+        const prev = root.prevStateByOutput[screen.name] ?? "COLLAPSED";
+        Dat.Globals.setNotchState(screen.name, prev);
+      }
     }
 
     Con.LockScreenSurface {
@@ -27,8 +34,12 @@ Scope {
 
   IpcHandler {
     function lock() {
-      root.prevState = Dat.Globals.notchState;
-      Dat.Globals.notchState = "COLLAPSED";
+      const saved = {};
+      for (const screen of Quickshell.screens) {
+        saved[screen.name] = Dat.Globals.notchState(screen.name);
+        Dat.Globals.setNotchState(screen.name, "COLLAPSED");
+      }
+      root.prevStateByOutput = saved;
       locker.start();
     }
 

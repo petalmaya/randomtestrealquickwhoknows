@@ -11,6 +11,7 @@ Rectangle {
   id: rect
 
   required property MprisPlayer player
+  property string outputName: ""
 
   clip: true
   color: Dat.Colors.current.surface_container_low
@@ -86,7 +87,7 @@ Rectangle {
 
     interval: 500
     repeat: true
-    running: Dat.Globals.notchState == "FULLY_EXPANDED" && Dat.Globals.swipeIndex == 3 && rect.player.isPlaying
+    running: Dat.Globals.notchState(rect.outputName) == "FULLY_EXPANDED" && Dat.Globals.swipeIndex(rect.outputName) == 3 && rect.player.isPlaying
 
     onRunningChanged: {
       // better hack to not wait for interval completion on quick state changes
@@ -100,7 +101,7 @@ Rectangle {
 
     interval: 500
     repeat: true
-    running: Dat.Globals.notchState != "COLLAPSED" && rect.player.isPlaying
+    running: Dat.Globals.notchState(rect.outputName) != "COLLAPSED" && rect.player.isPlaying
 
     onRunningChanged: {
       Dat.Globals.mprisDotRotation += (mprisDotRotateTimer.running) ? 6 : 0;

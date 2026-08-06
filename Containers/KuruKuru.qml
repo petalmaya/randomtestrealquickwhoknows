@@ -6,6 +6,11 @@ import qs.Data as Dat
 import qs.Widgets as Wid
 
 Item {
+  id: root
+
+  property string outputName: ""
+  readonly property string curNotchState: Dat.Globals.notchState(root.outputName)
+
   RowLayout {
     anchors.fill: parent
 
@@ -197,12 +202,14 @@ Item {
           }
         ]
 
-        Component.onCompleted: {
-          Dat.Globals.notchStateChanged.connect(() => {
-            if (Dat.Globals.notchState == "FULLY_EXPANDED") {
+        Connections {
+          function onCurNotchStateChanged() {
+            if (root.curNotchState == "FULLY_EXPANDED") {
               gifRect.playing = true;
             }
-          });
+          }
+
+          target: root
         }
         onSpeedChanged: {
           if (gifRect.speed > 8) {
@@ -226,7 +233,7 @@ Item {
 
         Timer {
           interval: 500
-          running: Dat.Globals.notchState != "FULLY_EXPANDED" && parent.playing == true
+          running: root.curNotchState != "FULLY_EXPANDED" && parent.playing == true
 
           onTriggered: {
             parent.playing = false;

@@ -6,6 +6,8 @@ import qs.Generics as Gen
 Text {
   id: timeText
 
+  property string outputName: ""
+
   anchors.centerIn: parent
   color: Dat.Colors.current.secondary
   font.pointSize: 11
@@ -20,11 +22,11 @@ Text {
     width: timeText.contentWidth + 12
 
     onClicked: {
-      if (Dat.Globals.notchState == "FULLY_EXPANDED" && Dat.Globals.swipeIndex == 1) {
-        Dat.Globals.notchState = "EXPANDED";
+      if (Dat.Globals.notchState(timeText.outputName) == "FULLY_EXPANDED" && Dat.Globals.swipeIndex(timeText.outputName) == 1) {
+        Dat.Globals.setNotchState(timeText.outputName, "EXPANDED");
       } else {
-        Dat.Globals.notchState = "FULLY_EXPANDED";
-        Dat.Globals.swipeIndex = 1;
+        Dat.Globals.setNotchState(timeText.outputName, "FULLY_EXPANDED");
+        Dat.Globals.setSwipeIndex(timeText.outputName, 1);
       }
     }
   }

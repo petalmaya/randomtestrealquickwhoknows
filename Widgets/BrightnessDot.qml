@@ -6,11 +6,11 @@ import qs.Generics as Gen
 Rectangle {
   color: Dat.Colors.current.surface_container_high
 
-  Text {
+  Gen.NerdIcon {
     anchors.centerIn: parent
     color: Dat.Colors.current.tertiary
     font.pointSize: 11
-    text: "󰃠"
+    icon: "󰃠"
   }
 
   Gen.MouseArea {

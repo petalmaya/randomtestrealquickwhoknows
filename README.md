@@ -17,7 +17,7 @@ with [this template](../../../../nixosModules/external/matugen/templates/quicksh
 
 - quickshell
 - material-symbols
-- nerdfonts
+- nerdfonts (noto)
 - [librebarcode](https://graphicore.github.io/librebarcode/) (should be available in the google-fonts package)
 - qtmultimedia (prolly already installed on your system)
 - powerprofilesdaemon (optional)

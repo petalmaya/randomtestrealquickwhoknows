@@ -29,6 +29,17 @@ Singleton {
   property var notifStateByOutput: ({})
   property var settingsTabIndexByOutput: ({})
   property var swipeIndexByOutput: ({})
+  property var networkPanelOpenByOutput: ({})
+
+  function networkPanelOpen(outputName) {
+    return root.networkPanelOpenByOutput[outputName] ?? false;
+  }
+
+  function setNetworkPanelOpen(outputName, value) {
+    const updated = Object.assign({}, root.networkPanelOpenByOutput);
+    updated[outputName] = value;
+    root.networkPanelOpenByOutput = updated;
+  }
 
   function notchState(outputName) {
     return root.notchStateByOutput[outputName] ?? "COLLAPSED";

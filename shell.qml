@@ -45,6 +45,10 @@ ShellRoot {
         modelData: scopeRoot.modelData
       }
 
+      Lay.NetPanel {
+        modelData: scopeRoot.modelData
+      }
+
       // inhibit the reload popup
       Connections {
         function onReloadCompleted() {

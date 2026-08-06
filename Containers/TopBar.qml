@@ -90,6 +90,27 @@ RowLayout {
         radius: 20
       }
 
+      Rectangle {
+        color: Dat.Globals.networkPanelOpen(root.outputName) ? Dat.Colors.current.primary : Dat.Colors.current.surface_container_high
+        implicitHeight: 20
+        implicitWidth: 20
+        radius: 20
+
+        Gen.MatIcon {
+          anchors.centerIn: parent
+          color: Dat.Globals.networkPanelOpen(root.outputName) ? Dat.Colors.current.on_primary : Dat.Colors.current.on_surface
+          font.pointSize: 11
+          icon: "wifi"
+        }
+
+        Gen.MouseArea {
+          layerColor: Dat.Colors.current.on_surface
+          layerRadius: 20
+
+          onClicked: Dat.Globals.setNetworkPanelOpen(root.outputName, !Dat.Globals.networkPanelOpen(root.outputName))
+        }
+      }
+
       Wid.AudioSwiper {
         implicitHeight: 20
         outputName: root.outputName

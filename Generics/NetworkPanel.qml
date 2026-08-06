@@ -1,3 +1,4 @@
+pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
@@ -253,7 +254,17 @@ ColumnLayout {
         horizontalAlignment: Text.AlignHCenter
         opacity: 0.7
         text: "No networks found"
-        visible: Dat.Network.networks.length == 0 && !Dat.Network.scanning
+        visible: Dat.Network.networks.length == 0 && !Dat.Network.scanning && Dat.Network.scanError.length == 0
+      }
+
+      Text {
+        Layout.fillWidth: true
+        color: Dat.Colors.current.error
+        font.pointSize: 9
+        horizontalAlignment: Text.AlignHCenter
+        text: Dat.Network.scanError
+        visible: Dat.Network.scanError.length > 0
+        wrapMode: Text.Wrap
       }
     }
   }

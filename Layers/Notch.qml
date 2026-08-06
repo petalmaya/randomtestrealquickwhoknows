@@ -11,14 +11,20 @@ WlrLayershell {
   required property ShellScreen modelData
 
   readonly property string curNotchState: Dat.Globals.notchState(notch.modelData.name)
+  readonly property bool fullyExpanded: notch.curNotchState == "FULLY_EXPANDED"
+
+  function collapse() {
+    Dat.Globals.setNotchState(notch.modelData.name, "EXPANDED");
+  }
 
   anchors.left: true
   anchors.right: true
   anchors.top: true
   color: "transparent"
   exclusionMode: ExclusionMode.Ignore
-  focusable: false
+  focusable: notch.fullyExpanded
   implicitHeight: screen.height * 0.65
+  keyboardFocus: notch.fullyExpanded ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
   layer: WlrLayer.Top
   namespace: "rexies.notch.quickshell"
   screen: modelData
@@ -26,12 +32,45 @@ WlrLayershell {
 
   mask: Region {
     Region {
+      item: clickCatcher
+    }
+
+    Region {
       item: notchRect
     }
 
     Region {
       item: notificationRect
     }
+  }
+
+  // full-bleed (within the layer's own bounds - it only covers the top
+  // ~65% of the screen) click-off catcher, same idea as NetPanel's.
+  // only actually receives input while fully expanded, since it's only
+  // added to the mask above in that state; the rest of the time clicks
+  // pass straight through to whatever's beneath the shell.
+  MouseArea {
+    id: clickCatcher
+
+    // zero-sized (and out of the mask's effective area) unless fully
+    // expanded - otherwise this would swallow every click across the
+    // top 65% of the screen at all times, breaking click-through to
+    // whatever's underneath the shell.
+    height: notch.fullyExpanded ? parent.height : 0
+    width: notch.fullyExpanded ? parent.width : 0
+    x: 0
+    y: 0
+
+    onClicked: notch.collapse()
+  }
+
+  Item {
+    id: notchFocusScope
+
+    anchors.fill: parent
+    focus: notch.fullyExpanded
+
+    Keys.onEscapePressed: notch.collapse()
   }
 
   Rectangle {

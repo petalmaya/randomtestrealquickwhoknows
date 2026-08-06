@@ -49,6 +49,10 @@ ShellRoot {
         modelData: scopeRoot.modelData
       }
 
+      Lay.VolumeOsd {
+        modelData: scopeRoot.modelData
+      }
+
       // inhibit the reload popup
       Connections {
         function onReloadCompleted() {

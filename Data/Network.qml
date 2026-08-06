@@ -17,6 +17,7 @@ Singleton {
   property bool scanning: false
   property bool connecting: false
   property string connectError: ""
+  property string scanError: ""
   // [{ssid, signal, security, active, known}], sorted strongest-first,
   // deduped by ssid (nmcli lists one row per BSSID otherwise)
   property var networks: []
@@ -58,10 +59,28 @@ Singleton {
   }
 
   // nmcli terse mode escapes literal colons in field values as "\:" -
-  // split only on colons that aren't preceded by a backslash, then
-  // unescape.
+  // walk the string manually rather than using a lookbehind regex here:
+  // lookbehind assertions (?<!...) aren't reliably supported across every
+  // QML/QJSEngine version, and when unsupported this throws at runtime
+  // instead of matching - which silently aborted parsing before
+  // root.networks ever got assigned. this version works everywhere.
   function _splitTerse(line) {
-    return line.split(/(?<!\\):/).map(f => f.replace(/\\:/g, ":"));
+    const fields = [];
+    let cur = "";
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === "\\" && line[i + 1] === ":") {
+        cur += ":";
+        i++;
+      } else if (ch === ":") {
+        fields.push(cur);
+        cur = "";
+      } else {
+        cur += ch;
+      }
+    }
+    fields.push(cur);
+    return fields;
   }
 
   Timer {
@@ -101,41 +120,58 @@ Singleton {
 
     command: ["nmcli", "-t", "-f", "IN-USE,SSID,SIGNAL,SECURITY", "device", "wifi", "list", "--rescan", "yes"]
 
+    stderr: StdioCollector {
+      onStreamFinished: {
+        if (this.text.trim().length > 0) {
+          root.scanError = this.text.trim();
+          root.scanning = false;
+        }
+      }
+    }
+
     stdout: StdioCollector {
       onStreamFinished: {
         knownProc.running = true;
 
-        const seen = {};
-        const list = [];
-        for (const line of this.text.split("\n")) {
-          if (!line)
-            continue;
+        try {
+          root.scanError = "";
 
-          const [inUse, ssid, signal, security] = root._splitTerse(line);
-          if (!ssid)
-            continue;
+          const seen = {};
+          const list = [];
+          for (const line of this.text.split("\n")) {
+            if (!line)
+              continue;
 
-          const existing = seen[ssid];
-          const signalNum = parseInt(signal) || 0;
-          if (existing && existing.signal >= signalNum)
-            continue;
+            const [inUse, ssid, signal, security] = root._splitTerse(line);
+            if (!ssid)
+              continue;
 
-          const entry = {
-            "ssid": ssid,
-            "signal": signalNum,
-            "security": security,
-            "active": inUse == "*",
-            "known": false
-          };
-          if (!existing)
-            list.push(entry);
-          else
-            Object.assign(existing, entry);
-          seen[ssid] = existing ?? entry;
+            const existing = seen[ssid];
+            const signalNum = parseInt(signal) || 0;
+            if (existing && existing.signal >= signalNum)
+              continue;
+
+            const entry = {
+              "ssid": ssid,
+              "signal": signalNum,
+              "security": security,
+              "active": inUse == "*",
+              "known": false
+            };
+            if (!existing)
+              list.push(entry);
+            else
+              Object.assign(existing, entry);
+            seen[ssid] = existing ?? entry;
+          }
+
+          list.sort((a, b) => (b.active - a.active) || (b.signal - a.signal));
+          root.networks = list;
+        } catch (e) {
+          root.scanError = "Failed to parse network list: " + e;
+          console.warn("Network.qml scan parse error:", e);
         }
 
-        list.sort((a, b) => (b.active - a.active) || (b.signal - a.signal));
-        root.networks = list;
         root.scanning = false;
       }
     }

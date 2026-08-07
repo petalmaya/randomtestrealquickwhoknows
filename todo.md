@@ -39,7 +39,7 @@
 ### What I do not like to see
 
 - [ ] generalize lockscreen and loginscreen
-- [ ] app launcher
+- [x] app launcher
 - [ ] Lazy Loading
 - [ ] use font.family for specifying fonts
 - [ ] adjust anchor magins in homeView

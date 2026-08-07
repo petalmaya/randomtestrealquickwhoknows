@@ -85,8 +85,13 @@ WlrLayershell {
   Rectangle {
     id: pill
 
+    // the launcher's search field sits bottom-center too - lift the OSD
+    // well clear of it while the launcher is open on this screen, so
+    // the two never overlap
+    readonly property bool launcherUp: Dat.Launcher.open && Dat.Launcher.outputName == root.modelData.name
+
     anchors.bottom: parent.bottom
-    anchors.bottomMargin: 46
+    anchors.bottomMargin: pill.launcherUp ? 200 : 46
     anchors.horizontalCenter: parent.horizontalCenter
     color: Dat.Colors.current.surface_container_high
     height: 56
@@ -95,6 +100,13 @@ WlrLayershell {
     scale: root.osdVisible ? 1 : 0.85
     transformOrigin: Item.Bottom
     width: 200
+
+    Behavior on anchors.bottomMargin {
+      NumberAnimation {
+        duration: Dat.MaterialEasing.standardTime
+        easing.bezierCurve: Dat.MaterialEasing.standard
+      }
+    }
 
     Behavior on opacity {
       NumberAnimation {

@@ -49,6 +49,10 @@ ShellRoot {
         modelData: scopeRoot.modelData
       }
 
+      Lay.Launcher {
+        modelData: scopeRoot.modelData
+      }
+
       Lay.VolumeOsd {
         modelData: scopeRoot.modelData
       }

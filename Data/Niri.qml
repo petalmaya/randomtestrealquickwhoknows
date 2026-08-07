@@ -20,6 +20,11 @@ Singleton {
   // idx (1-based) of the globally focused workspace, kept for single
   // monitor / back-compat callers that don't care which output
   property int currentWorkspace: 1
+  // name of the output whose workspace is currently focused - this is
+  // niri's notion of "the monitor you're on", useful for anything that
+  // needs to default to "wherever the user currently is" (e.g. the app
+  // launcher when triggered by a global keybind/IPC with no output arg)
+  property string focusedOutput: ""
   // output name -> idx of that output's currently visible workspace
   property var currentWorkspaceByOutput: ({})
   // id -> workspace object, as last reported by niri
@@ -35,6 +40,7 @@ Singleton {
 
     if (w.is_focused) {
       root.currentWorkspace = w.idx;
+      root.focusedOutput = w.output;
     }
   }
 
@@ -112,6 +118,12 @@ Singleton {
           const w = root.workspaces[activated.id];
           if (w) {
             w.is_active = true;
+            // niri only tells us here whether this activation also
+            // moved global focus (switching workspace on a
+            // non-focused monitor activates it without focusing it) -
+            // is_focused has to be derived from that, it isn't implied
+            // by is_active
+            w.is_focused = !!activated.focused;
             root._applyWorkspace(w);
           }
         }

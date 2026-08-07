@@ -91,6 +91,27 @@ RowLayout {
       }
 
       Rectangle {
+        color: (Dat.Launcher.open && Dat.Launcher.outputName == root.outputName) ? Dat.Colors.current.primary : Dat.Colors.current.surface_container_high
+        implicitHeight: 20
+        implicitWidth: 20
+        radius: 20
+
+        Gen.MatIcon {
+          anchors.centerIn: parent
+          color: (Dat.Launcher.open && Dat.Launcher.outputName == root.outputName) ? Dat.Colors.current.on_primary : Dat.Colors.current.on_surface
+          font.pointSize: 11
+          icon: "apps"
+        }
+
+        Gen.MouseArea {
+          layerColor: Dat.Colors.current.on_surface
+          layerRadius: 20
+
+          onClicked: Dat.Launcher.toggle(root.outputName)
+        }
+      }
+
+      Rectangle {
         color: Dat.Globals.networkPanelOpen(root.outputName) ? Dat.Colors.current.primary : Dat.Colors.current.surface_container_high
         implicitHeight: 20
         implicitWidth: 20

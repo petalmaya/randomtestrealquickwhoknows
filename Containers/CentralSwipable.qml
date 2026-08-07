@@ -50,6 +50,16 @@ Item {
               anchors.centerIn: parent
               color: Dat.Colors.current.on_surface
               font.pointSize: 11
+              // NerdIcon defaults to Text.NativeRendering, which rasterizes
+              // the glyph once via the platform font engine (freetype
+              // bitmap, no mipmaps) at font.pointSize. The ACTIVE state
+              // below scales that fixed bitmap up 1.6x with a GPU
+              // transform, which is what pixelates - NativeRendering has no
+              // smooth-scaling path. QtRendering instead draws the glyph as
+              // a distance-field texture, which samples cleanly at any
+              // scale and is actually cheaper here since nothing needs to
+              // re-rasterize per animation frame.
+              renderType: Text.QtRendering
               state: (swipeArea.currentIndex == tabDot.index) ? "ACTIVE" : "INACTIVE"
               icon: tabDot.modelData
 

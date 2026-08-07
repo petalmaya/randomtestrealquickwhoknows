@@ -116,7 +116,10 @@ WlrLayershell {
     // the same visual spot
     anchors.bottomMargin: parent.height * 0.01
     anchors.horizontalCenter: parent.horizontalCenter
-    color: Dat.Colors.current.surface_container_high
+    // same withAlpha strategy as the notch bar (Layers/Notch.qml) - panel
+    // background stays tinted with the theme's surface color but lets some
+    // of the desktop/wallpaper show through instead of being fully opaque
+    color: Dat.Colors.withAlpha(Dat.Colors.current.surface_container_high, 0.89)
     // 12 (top margin to modeSwitcher) + 28 (modeSwitcher height) + 10
     // (gap to content) + 12 (bottom padding to match the original
     // content-only 24px), see modeSwitcher/content anchoring below

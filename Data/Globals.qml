@@ -1,6 +1,7 @@
 pragma Singleton
 import QtQuick
 import Quickshell
+import Quickshell.Io
 import Quickshell.Wayland
 
 import qs.Data as Dat
@@ -91,6 +92,89 @@ Singleton {
     const updated = Object.assign({}, root.swipeIndexByOutput);
     updated[outputName] = value;
     root.swipeIndexByOutput = updated;
+  }
+
+  // --- notch IPC (keybindable via `qs ipc call notch <fn>`) ---
+  // swipe indices into CentralSwipable.qml's tab model
+  // (["Home", "Calendar", "System", "Music", "Settings"]) - named here so
+  // the IPC functions below don't read as arbitrary magic numbers.
+  // WorkspacePill.qml's click handler hardcodes tabIndexSystem's value
+  // (2) directly rather than importing this, since it predates this
+  // block - fine to leave as is, just know they need to move together
+  // if the tab order in CentralSwipable.qml ever changes.
+  readonly property int tabIndexSystem: 2
+  readonly property int tabIndexMusic: 3
+
+  // best-effort guess at "the screen the user is currently on", for IPC
+  // calls that don't specify an output (a global keybind has no idea
+  // which monitor you're looking at). Mirrors Data/Launcher.qml's
+  // _guessOutput() - kept as a separate copy rather than shared since
+  // Launcher's version is private to that singleton.
+  function _guessOutput() {
+    if (Dat.Niri.active && Dat.Niri.focusedOutput) {
+      return Dat.Niri.focusedOutput;
+    }
+    return Quickshell.screens[0]?.name ?? "";
+  }
+
+  // opens the notch to its full pane (tabs + KuruKuru), on whichever tab
+  // was last showing - doesn't touch swipeIndex, so repeated calls (or a
+  // toggle keybind) land back where you left it.
+  function notchOpen(outputName) {
+    root.setNotchState(outputName || root._guessOutput(), "FULLY_EXPANDED");
+  }
+
+  // same "where should this collapse to" fallback used by
+  // onActWinNameChanged below - EXPANDED (small pill-with-content) if
+  // there's no focused window to get out of the way of, COLLAPSED
+  // otherwise.
+  function notchClose(outputName) {
+    const output = outputName || root._guessOutput();
+    root.setNotchState(output, root.actWinName == "desktop" ? "EXPANDED" : "COLLAPSED");
+  }
+
+  function notchToggle(outputName) {
+    const output = outputName || root._guessOutput();
+    if (root.notchState(output) == "FULLY_EXPANDED") {
+      root.notchClose(output);
+    } else {
+      root.notchOpen(output);
+    }
+  }
+
+  // opens straight to a specific tab, e.g. for a "media keys should also
+  // reveal the media tab" keybind. Always jumps to FULLY_EXPANDED even if
+  // already open on a different tab, rather than toggling, since a
+  // dedicated media/workspace keybind firing twice in a row should
+  // re-affirm that tab, not close the notch out from under you.
+  function notchOpenTab(outputName, tabIndex) {
+    const output = outputName || root._guessOutput();
+    root.setSwipeIndex(output, tabIndex);
+    root.setNotchState(output, "FULLY_EXPANDED");
+  }
+
+  IpcHandler {
+    function close() {
+      root.notchClose("");
+    }
+
+    function media() {
+      root.notchOpenTab("", root.tabIndexMusic);
+    }
+
+    function open() {
+      root.notchOpen("");
+    }
+
+    function toggle() {
+      root.notchToggle("");
+    }
+
+    function workspaces() {
+      root.notchOpenTab("", root.tabIndexSystem);
+    }
+
+    target: "notch"
   }
 
   // true if any monitor currently satisfies the given state / swipe /

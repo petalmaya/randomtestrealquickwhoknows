@@ -16,7 +16,7 @@ WlSessionLockSurface {
 
   property bool error: false
   property string inputBuffer: ""
-  readonly property list<string> kokomi: ["k", "o", "k", "o", "m", "i"]
+  readonly property list<string> kokomi: ["", "", "", "", "", ""]
   required property WlSessionLock lock
   property string maskedBuffer: ""
   property bool unlocking: false

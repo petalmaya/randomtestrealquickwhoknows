@@ -1,19 +1,37 @@
-# Kuru Kuru Bar
+# Kuru Kuru Bar (personal fork)
 
 https://github.com/user-attachments/assets/26b32435-a932-4a63-8545-24e5039714b6
 
 - Wallpaper source: [The Herta by meirong](https://www.pixiv.net/artworks/126270092)
 
+> **This is a personal fork**, not the upstream project. It's forked from
+> [Rexcrazy804](https://github.com/Rexcrazy804)'s original Kuru Kuru Bar
+> (part of their [Zaphkiel](https://github.com/Rexcrazy804/Zaphkiel) NixOS
+> flake) and adapted to run standalone on a Debian machine outside of
+> that NixOS setup. On top of the port, this fork adds its own stuff not
+> in upstream (app launcher w/ wallpaper picker mode, extra IPC targets,
+> assorted fixes) and drops pieces that only made sense in the original
+> NixOS/greetd context (see below).
+>
+> **Experimental.** This is tracked and iterated on for one specific
+> machine/config, not tested across distros or hardware. Expect rough
+> edges, and check before assuming something works as
+> documented.
+
 A compat and adorable bar designed with the goal of speeening the kuru kuru.
 Designed in acordance to google's material 3 guidelines.
-You may generate colors from your wallpaper using [matugen](https://github.com/InioX/matugen)
-with [this template](../../../../nixosModules/external/matugen/templates/quickshell-colors.qml)
+You may generate colors from your wallpaper using [matugen](https://github.com/InioX/matugen).
+(Upstream ships a matugen template via their NixOS module; on this fork
+you'll need to supply your own template or point matugen's config at one -
+see `scripts/applyMatugen.sh`.)
 
 | [Kokomi by omochichi96](https://twitter.com/omochichi96/status/1758113643521245240) | [Shinobu by solipsist](https://www.pixiv.net/en/artworks/119108248) |
 |----------|----------|
 |![image](https://github.com/user-attachments/assets/7ed235f1-0a49-4546-be01-16197dc7940f) | ![image](https://github.com/user-attachments/assets/16cb7c57-92b2-4178-a5e6-d9023012f473) |
 
-### Depencencies
+### Dependencies
+
+General list (package manager agnostic):
 
 - quickshell
 - niri (or mangowc — both are auto-detected at runtime)
@@ -21,15 +39,47 @@ with [this template](../../../../nixosModules/external/matugen/templates/quicksh
 - nerdfonts (the wallpaper picker and glyph icons expect the patched Noto Sans Mono, "NotoSansM Nerd Font Propo")
 - [librebarcode](https://graphicore.github.io/librebarcode/) (should be available in the google-fonts package)
 - qt6declarative-labs (Qt.labs.folderlistmodel, Qt.labs.platform — used by the wallpaper picker)
-- qtmultimedia (prolly already installed on your system)
+- qtmultimedia
 - powerprofilesdaemon (optional)
 - brightnessctl (optional)
 - rembg (required for foreground layer effect)
 
-### Installation
+> #### Installing on Debian
+>
+> quickshell itself isn't in Debian's repos — build/install it per the
+> [quickshell docs](https://quickshell.org) first (or grab a prebuilt if
+> one's available for your Debian version), then the rest of this maps to:
+>
+> ```sh
+> sudo apt install \
+>   fonts-noto-color-emoji \
+>   qml6-module-qt-labs-folderlistmodel \
+>   qml6-module-qt-labs-platform \
+>   qml6-module-qtmultimedia \
+>   qml6-module-qtquick-effects \
+>   qt6-multimedia-plugins \
+>   power-profiles-daemon \
+>   brightnessctl \
+>   fonts-noto \
+>   pipx
+> ```
+>
+> A few notes:
+> - **material-symbols** and the **nerd-fonted Noto Sans Mono** aren't
+>   packaged on Debian — grab them manually: [Material Symbols](https://fonts.google.com/icons)
+>   and the "NotoSansM Nerd Font Propo" variant from
+>   [nerdfonts releases](https://github.com/ryanoasis/nerd-fonts/releases),
+>   then drop them in `~/.local/share/fonts` and run `fc-cache -f`.
+> - **librebarcode** isn't in Debian's `fonts-google-*` packages either —
+>   download it from the [librebarcode site](https://graphicore.github.io/librebarcode/)
+>   and install it the same way as above.
+> - **rembg** is a Python package, not a system one — `pipx install rembg`
+>   (or a venv) is more reliable on Debian than hunting for a system
+>   package.
+> - You still need a compositor: niri or mangowc, neither of which is in
+>   Debian's default repos — follow their own install instructions.
 
-> Beloved nixos cuties, please refer to the
-> [Nixos Section](#Nixos)
+### Installation
 
 1. Install the above dependencies using your favourite package manager
 1. git clone this repo
@@ -65,106 +115,15 @@ Subsequent runs will depend on your hardware
 but the results are cached
 so switching to already processed images are instant.
 
-> users of the kurukurubar via nixos flake should replace `quickshell`
-> with `kurukurubar` for the commands listed above
-
-### NixOS
-
-This rice is exposed as a package in the toplevel flake
-and can be used to run the rice as follows
-
-```
-nix run github:Rexcrazy804/Zaphkiel#kurukurubar
-```
-
-#### Usage as flake
-
-First add zaphkiel as a flake input
-
-```nix
-{
-    description = "your cute flake";
-    inputs = {
-        nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
-        zaphkiel = {
-            url = "github:Rexcrazy804/Zaphkiel";
-            inputs.nixpkgs.follows = "nixpkgs";
-
-            # optional
-            # inputs.quickshell.follows = "quickshell";
-            # inputs.systems.follows = "systems";
-
-            # kurkurubar does not depend on the below
-            # so we point it to null
-            inputs.hjem.follows = "";
-            inputs.hjem-impure.follows = "";
-            inputs.agenix.follows = "";
-            inputs.crane.follows = "";
-            inputs.stash.follows = "";
-            inputs.booru-hs.follows = "";
-            inputs.hs-todo.follows = "";
-        };
-        # other inputs ...
-    };
-    outputs = {self, nixpkgs, ...}@inputs: {
-        # your outputs ...
-    };
-}
-```
-
-Now you may refer to the kurukurubar package as `inputs.zaphkiel.packages.${pkgs.system}.kurukurubar`
-
-```nix
-{
-    inputs,
-    pkgs,
-    ...
-}: {
-    environment.systemPackages = [
-        inputs.zaphkiel.packages.${pkgs.system}.kurukurubar
-    ];
-
-    # NOTE
-    # for running the bar, use `kurukurubar`
-    # for instance in the hyprland config, use:
-    # exec-once = kurukurubar
-}
-```
-
-For kurukuruDM you may import and leverage the kurukuruDM module as follows
-
-```nix
-{
-    inputs,
-    pkgs,
-    ...
-}: {
-    imports = [inputs.zaphkiel.nixosModules.kurukuruDM];
-
-    # for more information check the module in 
-    # `nixosModules/exported/kurukuruDM.nix`
-    programs.kurukuruDM = {
-        enable = true;
-        package = pkgs.kurukurubar;                     # defaults to kurukurubar-unstable (TODO CHANGE THIS)
-        settings = {
-            wallpaper = ./path/to/wallpaper;            # you may use fetchurl to get remote images
-            instantAuth = false;                        # auto starts authentication, good for fingerprint support ONLY
-            default_user = "rexies";                    # set to null for possible values, only usefull for multi user systems
-            default_session = "sway";                   # same as above, only usefull for multi session systems
-            extraConfig = ''                            # extra configuration passed to underlying hyprland session
-              monitor = eDP-1, preferred, auto, 1.25    # you may enter any valid hyprland config here
-            '';
-        };
-    };
-}
-```
-
-For a complete functional configuration using this flake see
-[zaphkieltest](https://github.com/Rexcrazy804/zaphkieltest)
+> **Not present in this fork**: upstream also ships `greeter.qml`, a
+> `greetd`-based pre-login greeter (plus a `kurukuruDM` NixOS module and a
+> QEMU VM test rig for it). This fork removes all of that — it's built to
+> run under an already-installed display manager (SDDM here), not to
+> replace one. If you want a greetd-based login screen, use upstream
+> directly instead of this fork.
 
 ### Known Issues
 
-- `org.Hyprland.style is not installed`: see [#21](https://github.com/Rexcrazy804/Zaphkiel/issues/21#issuecomment-2906546939)
 - Herta faceIcon: symlink an image (of any image type) to ~/.face.icon
 
 ## Acknowledgement

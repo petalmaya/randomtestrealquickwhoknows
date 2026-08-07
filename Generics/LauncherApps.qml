@@ -80,6 +80,10 @@ Item {
         anchors.fill: parent
         anchors.margins: 4
         boundsBehavior: Flickable.StopAtBounds
+        // keep a few rows' worth of icons warm just off-screen so small
+        // scroll wobbles don't drop/re-issue their IconImage pixmap
+        // requests
+        cacheBuffer: 300
         clip: true
         currentIndex: root.filtered.length > 0 ? 0 : -1
         model: root.filtered

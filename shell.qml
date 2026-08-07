@@ -33,14 +33,6 @@ ShellRoot {
         }
       }
 
-      LazyLoader {
-        activeAsync: Dat.Config.data.mousePsystem
-
-        component: Lay.MouseParticles {
-          modelData: scopeRoot.modelData
-        }
-      }
-
       Lay.Notch {
         modelData: scopeRoot.modelData
       }

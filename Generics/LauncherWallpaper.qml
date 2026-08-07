@@ -184,6 +184,10 @@ Item {
         anchors.fill: parent
         anchors.margins: 6
         boundsBehavior: Flickable.StopAtBounds
+        // same reasoning as LauncherApps.qml - keep a couple thumbnails'
+        // worth cached just off-screen instead of dropping/re-requesting
+        // their pixmaps on small scroll wobbles
+        cacheBuffer: 220
         clip: true
         currentIndex: folderModel.count > 0 ? 0 : -1
         orientation: ListView.Horizontal

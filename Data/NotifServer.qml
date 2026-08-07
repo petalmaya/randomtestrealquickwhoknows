@@ -4,6 +4,7 @@
 pragma Singleton
 import QtQuick
 import Quickshell
+import Quickshell.Io
 import Quickshell.Services.Notifications
 
 Singleton {
@@ -18,6 +19,16 @@ Singleton {
     [...notifServer.trackedNotifications.values].forEach(elem => {
       elem.dismiss();
     });
+  }
+
+  // qs ipc call notifications clear - bindable in niri/mangowc same as
+  // "launcher"/"lockscreen" targets elsewhere in Data/
+  IpcHandler {
+    function clear() {
+      notif.clearNotifs();
+    }
+
+    target: "notifications"
   }
 
   NotificationServer {

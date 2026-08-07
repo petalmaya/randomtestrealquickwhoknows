@@ -24,7 +24,6 @@ Singleton {
       id: jsonData
 
       property bool matugenEnabled: true
-      property bool mousePsystem: false
       property bool reservedShell: false
       property bool setWallpaper: true
       property bool wallFgLayer: false

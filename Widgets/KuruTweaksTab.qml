@@ -31,14 +31,6 @@ Rectangle {
 
       Gen.TweakToggle {
         Layout.fillWidth: true
-        active: Dat.Config.data.mousePsystem
-        text: "Mouse Particles"
-
-        onClicked: () => Dat.Config.data.mousePsystem = !Dat.Config.data.mousePsystem
-      }
-
-      Gen.TweakToggle {
-        Layout.fillWidth: true
         active: Dat.Config.data.setWallpaper
         text: "Set Wallpaper"
 

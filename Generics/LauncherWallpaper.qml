@@ -124,6 +124,29 @@ Item {
       }
 
       Rectangle {
+        id: matugenToggle
+
+        Layout.preferredHeight: 26
+        Layout.preferredWidth: 26
+        color: Dat.Config.data.matugenEnabled ? Dat.Colors.current.primary : Dat.Colors.current.surface_container
+        radius: 8
+
+        Gen.MatIcon {
+          anchors.centerIn: parent
+          color: Dat.Config.data.matugenEnabled ? Dat.Colors.current.on_primary : Dat.Colors.current.on_surface
+          font.pointSize: 12
+          icon: "palette"
+        }
+
+        Gen.MouseArea {
+          layerColor: Dat.Config.data.matugenEnabled ? Dat.Colors.current.on_primary : Dat.Colors.current.on_surface
+          layerRadius: 8
+
+          onClicked: Dat.Config.data.matugenEnabled = !Dat.Config.data.matugenEnabled
+        }
+      }
+
+      Rectangle {
         id: refreshBtn
 
         Layout.preferredHeight: 26
@@ -184,19 +207,24 @@ Item {
           required property string fileName
           required property int index
 
+          readonly property bool isApplied: root.currentSrc == Dat.Paths.urlToPath(thumbDelegate.fileUrl)
+          readonly property bool isSelected: list.currentIndex == thumbDelegate.index
+
           height: list.height
           width: 128
 
           Rectangle {
+            id: frame
+
             anchors.fill: parent
             anchors.bottomMargin: 20
-            border.color: Dat.Colors.current.primary
-            border.width: (list.currentIndex == thumbDelegate.index) ? 3 : ((root.currentSrc == Dat.Paths.urlToPath(thumbDelegate.fileUrl)) ? 2 : 0)
             clip: true
             color: Dat.Colors.current.surface_container_high
             radius: 10
 
             Image {
+              id: thumbImg
+
               anchors.fill: parent
               asynchronous: true
               fillMode: Image.PreserveAspectCrop
@@ -204,6 +232,31 @@ Item {
               source: thumbDelegate.fileUrl
               sourceSize.height: 116
               sourceSize.width: 116
+            }
+
+            // Drawn *after* (so on top of) the Image, since children paint
+            // over their parent's own border - previously the border lived
+            // on this same Rectangle as the Image's parent, so the Image
+            // (same anchors.fill bounds) painted straight over it and the
+            // selection indicator was invisible underneath. A separate
+            // transparent-fill overlay on top fixes that without touching
+            // how the thumbnail itself renders (a shader-based rounded
+            // mask was tried here and broke thumbnail loading - reverted).
+            Rectangle {
+              id: selectionRing
+
+              anchors.fill: parent
+              border.color: Dat.Colors.current.primary
+              border.width: thumbDelegate.isSelected ? 3 : (thumbDelegate.isApplied ? 2 : 0)
+              color: "transparent"
+              radius: 10
+
+              Behavior on border.width {
+                NumberAnimation {
+                  duration: Dat.MaterialEasing.standardTime
+                  easing.bezierCurve: Dat.MaterialEasing.standard
+                }
+              }
             }
 
             Gen.MouseArea {
@@ -276,6 +329,14 @@ Item {
           onTextChanged: Dat.Launcher.query = text
 
           onAccepted: root.pickSelected()
+
+          // TextInput has built-in Left/Right cursor movement, and by
+          // default Keys signal handlers only run *after* an item's own
+          // key handling (Keys.priority: Keys.AfterItem) - so as soon as
+          // there was any text in the field, Left/Right were being eaten
+          // by the cursor move before Keys.onLeftPressed/onRightPressed
+          // below ever saw them. BeforeItem makes our handlers run first.
+          Keys.priority: Keys.BeforeItem
 
           Keys.onEscapePressed: event => {
             if (input.text.length > 0) {

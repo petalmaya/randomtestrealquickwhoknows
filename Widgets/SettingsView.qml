@@ -29,7 +29,10 @@ Item {
         anchors.fill: parent
 
         Repeater {
-          model: ["Power", "Audio", "Kuru", "Wallpaper"]
+          // wallpaper picking moved to the app launcher's "wallpaper"
+          // mode (Generics/LauncherWallpaper.qml) - no tab for it here
+          // anymore
+          model: ["Power", "Audio", "Kuru"]
 
           Item {
             id: tabRect
@@ -170,19 +173,6 @@ Item {
         }
       }
 
-      Wid.WallpaperTab {
-        Layout.fillHeight: true
-        Layout.fillWidth: true
-        opacity: visible ? 1 : 0
-        outputName: root.outputName
-
-        Behavior on opacity {
-          NumberAnimation {
-            duration: Dat.MaterialEasing.emphasizedAccelTime
-            easing.bezierCurve: Dat.MaterialEasing.emphasizedAccel
-          }
-        }
-      }
     }
   }
 }

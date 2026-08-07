@@ -19,6 +19,8 @@ Singleton {
 
   // name of the mode used when the launcher is first opened / reset
   readonly property string defaultMode: "apps"
+  // ordered so Tab can cycle through them - see cycleMode()
+  readonly property var modes: ["apps", "wallpaper"]
 
   property bool open: false
   // which screen currently owns the launcher - only that screen's
@@ -63,6 +65,15 @@ Singleton {
   function setMode(m) {
     root.mode = m;
     root.query = "";
+  }
+
+  // Tab cycles forward through `modes`, wrapping around - bound to
+  // Keys.onTabPressed on the launcher panel (Layers/Launcher.qml), so
+  // it works no matter which mode's content currently has focus
+  function cycleMode() {
+    const idx = root.modes.indexOf(root.mode);
+    const next = root.modes[(idx + 1) % root.modes.length];
+    root.setMode(next);
   }
 
   IpcHandler {

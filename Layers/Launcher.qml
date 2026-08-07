@@ -96,6 +96,14 @@ WlrLayershell {
     focus: root.open
 
     Keys.onEscapePressed: root.close()
+    // Tab cycles apps/wallpaper mode - accepted here (not left to
+    // default focus-chain handling) so it never tabs focus out of the
+    // panel to something else on the surface
+    Keys.onTabPressed: event => {
+      Dat.Launcher.cycleMode();
+      content.requestFocus();
+      event.accepted = true;
+    }
 
     anchors.bottom: parent.bottom
     // fixed relative to the screen, NOT to the panel's own height - this
@@ -109,7 +117,10 @@ WlrLayershell {
     anchors.bottomMargin: parent.height * 0.01
     anchors.horizontalCenter: parent.horizontalCenter
     color: Dat.Colors.current.surface_container_high
-    height: content.implicitHeight + 24
+    // 12 (top margin to modeSwitcher) + 28 (modeSwitcher height) + 10
+    // (gap to content) + 12 (bottom padding to match the original
+    // content-only 24px), see modeSwitcher/content anchoring below
+    height: modeSwitcher.height + content.implicitHeight + 12 + 10 + 12
     implicitWidth: 560
     opacity: root.open ? 1 : 0
     radius: 24
@@ -143,10 +154,61 @@ WlrLayershell {
       anchors.fill: parent
     }
 
-    // mode is what makes this extendable: "apps" today, future modes
-    // (wallpaper picker, command mode) just add a branch here and their
-    // own Generics/Launcher*.qml, everything else on this surface
-    // (click-off, escape, animation, positioning) stays untouched
+    // small mode-switcher row - exactly the extension point the handoff
+    // notes sketched out ("a small mode-switcher row inside the panel
+    // itself"). setMode() clears query but leaves open/outputName alone,
+    // so switching tabs doesn't close the panel.
+    Row {
+      id: modeSwitcher
+
+      anchors.horizontalCenter: parent.horizontalCenter
+      anchors.top: parent.top
+      anchors.topMargin: 12
+      spacing: 6
+
+      Repeater {
+        model: [{
+            "mode": "apps",
+            "icon": "apps"
+          }, {
+            "mode": "wallpaper",
+            "icon": "wallpaper"
+          }]
+
+        Rectangle {
+          id: modeTab
+
+          required property var modelData
+
+          color: (Dat.Launcher.mode == modelData.mode) ? Dat.Colors.current.primary_container : "transparent"
+          height: 28
+          radius: 10
+          width: 28
+
+          Gen.MatIcon {
+            anchors.centerIn: parent
+            color: (modeTab.modelData.mode == Dat.Launcher.mode) ? Dat.Colors.current.on_primary_container : Dat.Colors.current.on_surface_variant
+            font.pointSize: 13
+            icon: modeTab.modelData.icon
+          }
+
+          Gen.MouseArea {
+            layerColor: Dat.Colors.current.on_surface
+            layerRadius: 10
+
+            onClicked: {
+              Dat.Launcher.setMode(modeTab.modelData.mode);
+              content.requestFocus();
+            }
+          }
+        }
+      }
+    }
+
+    // mode is what makes this extendable: "apps" and "wallpaper" today,
+    // future modes (command mode) just add a branch here and their own
+    // Generics/Launcher*.qml, everything else on this surface (click-off,
+    // escape, animation, positioning) stays untouched
     Loader {
       id: content
 
@@ -162,15 +224,22 @@ WlrLayershell {
       anchors.leftMargin: 14
       anchors.right: parent.right
       anchors.rightMargin: 14
-      anchors.top: parent.top
-      anchors.topMargin: 12
-      sourceComponent: Dat.Launcher.mode == "apps" ? appsMode : null
+      anchors.top: modeSwitcher.bottom
+      anchors.topMargin: 10
+      sourceComponent: Dat.Launcher.mode == "wallpaper" ? wallpaperMode : appsMode
     }
 
     Component {
       id: appsMode
 
       Gen.LauncherApps {
+      }
+    }
+
+    Component {
+      id: wallpaperMode
+
+      Gen.LauncherWallpaper {
       }
     }
   }

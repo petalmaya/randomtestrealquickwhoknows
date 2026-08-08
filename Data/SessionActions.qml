@@ -33,12 +33,18 @@ Singleton {
     Quickshell.execDetached(["systemctl", "suspend"]);
   }
 
+  // Was start/stop-ing "hypridle.service" here on top of the
+  // systemd-inhibit Process below - hypridle is Hyprland's idle daemon,
+  // this shell targets niri/mangowc (see CLAUDE.md), so that service
+  // almost certainly doesn't exist on this system. execDetached() has no
+  // stdout/stderr to notice a failure with (same gotcha poweroff()'s
+  // comment already calls out), so it was silently no-op-ing every
+  // toggle instead of erroring - never actually did anything, for better
+  // or worse. The systemd-inhibit Process below is compositor-agnostic
+  // (goes through logind, not a Hyprland-specific daemon) and is the only
+  // piece of this that was actually inhibiting idle - toggling it is now
+  // the whole implementation.
   function toggleIdle() {
-    if (root.idleInhibited) {
-      Quickshell.execDetached(["systemctl", "--user", "start", "hypridle.service"]);
-    } else {
-      Quickshell.execDetached(["systemctl", "--user", "stop", "hypridle.service"]);
-    }
     root.idleInhibited = !root.idleInhibited;
   }
 

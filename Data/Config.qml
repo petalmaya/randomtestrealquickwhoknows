@@ -27,20 +27,44 @@ Singleton {
       property bool reservedShell: false
       property bool setWallpaper: true
       property bool wallFgLayer: false
+      // NOTE: despite the name, this is no longer a desktop-wallpaper
+      // fallback - it's the lock screen's background image specifically
+      // (see wallpaperFor()/lockWallpaper below). Kept the JSON key as
+      // "wallSrc" rather than renaming it so existing config.json files
+      // don't silently lose their picked image on upgrade.
       property string wallSrc: Quickshell.env("HOME") + "/.config/background"
-      // output name -> wallpaper path, overrides wallSrc for that monitor
+      // output name -> wallpaper path. This is the *only* source for a
+      // given monitor's desktop background now - there is deliberately no
+      // shared/global fallback for the desktop layer, each output needs
+      // its own entry (picked via the launcher's "This Display" chip) or
+      // it just shows nothing. See handoff.md for why.
       property var wallpapersByOutput: ({})
       property string wallpaperDir: Quickshell.env("HOME") + "/Pictures/Wallpapers"
     }
   }
 
-  // resolves the effective wallpaper for a given output name, falling
-  // back to the global wallSrc when that output has no override
+  // convenience name for reading the lock screen's background - same
+  // storage as wallSrc, just spelled out for readability at call sites
+  // that care specifically about the lock screen rather than desktop bg
+  readonly property alias lockWallpaper: jsonData.wallSrc
+
+  // resolves the effective *desktop* wallpaper for a given output name.
+  // Strictly per-monitor: no outputName (or one with no override) means
+  // "no wallpaper for this monitor", not "fall back to the lock screen's
+  // image" - that fallback used to exist and was the source of desktop
+  // and lock screen backgrounds getting tangled together. The one
+  // exception is an explicitly empty/falsy outputName, which resolves to
+  // the lock wallpaper - that's what lets the launcher's "Default" chip
+  // (Generics/LauncherWallpaper.qml, targetOutput == "") preview/compare
+  // against the lock image it's actually editing.
   function wallpaperFor(outputName) {
-    if (outputName && jsonData.wallpapersByOutput && jsonData.wallpapersByOutput[outputName]) {
+    if (!outputName) {
+      return jsonData.wallSrc;
+    }
+    if (jsonData.wallpapersByOutput && jsonData.wallpapersByOutput[outputName]) {
       return jsonData.wallpapersByOutput[outputName];
     }
-    return jsonData.wallSrc;
+    return "";
   }
 
   function setWallpaperFor(outputName, path) {
@@ -67,6 +91,8 @@ Singleton {
   }
 
   IpcHandler {
+    // sets the lock screen background (not a desktop wallpaper - desktop
+    // backgrounds are per-output only now, use setWallpaperFor for those)
     function setWallpaper(path: string) {
       path = Qt.resolvedUrl(path);
       jsonData.wallSrc = path;
@@ -141,7 +167,7 @@ Singleton {
 
   Connections {
     // re-theme immediately if the toggle gets flipped back on, using
-    // whatever the currently-effective default wallpaper is
+    // whatever the currently-effective lock screen wallpaper is
     function onMatugenEnabledChanged() {
       root.runMatugenFor(jsonData.wallSrc);
     }
@@ -150,6 +176,13 @@ Singleton {
       onWallSrcChanged();
     }
 
+    // wallSrc is the lock screen's background now (see wallpaperFor()),
+    // so this only ever re-extracts a foreground cutout for whatever's
+    // actually behind the lock screen - it deliberately does NOT fire
+    // off of per-output desktop wallpaper changes (setWallpaperFor with a
+    // real outputName). If that behavior's ever wanted too, it'd need its
+    // own per-output extractFg run + wallFg storage keyed by output,
+    // rather than the single global wallFg this generates today.
     function onWallSrcChanged() {
       if (jsonData.wallSrc != "" && jsonData.wallFgLayer) {
         if (!generateFg.running) {

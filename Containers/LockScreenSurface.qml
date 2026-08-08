@@ -24,6 +24,10 @@ WlSessionLockSurface {
   Wid.Wallpaper {
     id: wallpaper
 
+    // deliberately not per-output (leaving outputName unset) - the lock
+    // screen shows the same shared image (Dat.Config.lockWallpaper, aka
+    // jsonData.wallSrc) on every monitor regardless of that monitor's own
+    // desktop background, which is a separate per-output-only concept now
     anchors.fill: parent
 
     layer.effect: MultiEffect {

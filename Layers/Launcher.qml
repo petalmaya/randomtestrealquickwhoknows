@@ -6,6 +6,14 @@ import Quickshell.Wayland
 import qs.Data as Dat
 import qs.Generics as Gen
 
+// WlrLayershell is what actually puts a floating panel like this on
+// screen, outside any normal window - it's the Wayland "layer shell"
+// protocol Quickshell wraps for you. The `open`/`surfaceVisible` split
+// below is the standard pattern used by every Layers/*.qml surface: `open`
+// is the *logical* state (should this panel be shown right now?), while
+// `surfaceVisible` is what the layershell itself actually reads for
+// `visible` - it's kept true a little longer via closeLinger so the close
+// animation gets to finish before the surface disappears from the screen.
 WlrLayershell {
   id: root
 

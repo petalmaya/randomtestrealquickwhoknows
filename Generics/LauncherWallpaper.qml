@@ -16,10 +16,14 @@ import qs.Generics as Gen
 // combo that used to live in the Kuru settings panel - grid/model/click
 // wiring is carried over from WallpaperPicker.qml, just reshaped to match
 // the launcher's search-field-at-bottom layout instead of a settings tab.
-// The "This Display" / "Default" chip pair is the same idea as
-// WallpaperPicker's, condensed - that's the multi-monitor bit: each
-// screen's launcher instance defaults to editing *that* screen's
-// override, but you can still switch to editing the shared default.
+//
+// The "This Display" / "Lock Screen" chip pair picks *what you're editing*,
+// not two flavors of the same thing anymore: "This Display" sets that
+// output's desktop background only (Dat.Config.wallpapersByOutput), and
+// "Lock Screen" sets the one shared image the lock screen uses on every
+// monitor (Dat.Config.lockWallpaper). There's no more "shared default
+// desktop wallpaper" concept - every monitor needs its own "This Display"
+// pick or it just has no desktop background.
 Item {
   id: root
 
@@ -63,7 +67,7 @@ Item {
             "label": "This Display",
             "isDefault": false
           }, {
-            "label": "Default",
+            "label": "Lock Screen",
             "isDefault": true
           }]
 

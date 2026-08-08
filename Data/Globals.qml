@@ -194,6 +194,18 @@ Singleton {
     return false;
   }
 
+  // true if the net panel is open on ANY monitor. same throttling idea as
+  // anyOutputAt above, just for networkPanelOpenByOutput instead of
+  // notchStateByOutput - lets Data/Network.qml stop polling `nmcli` every
+  // 15s in the background when nobody's actually looking at the wifi list.
+  readonly property bool anyNetworkPanelOpen: {
+    for (const output in root.networkPanelOpenByOutput) {
+      if (root.networkPanelOpenByOutput[output])
+        return true;
+    }
+    return false;
+  }
+
   readonly property bool anyNotCollapsed: {
     for (const output in root.notchStateByOutput) {
       if (root.notchStateByOutput[output] !== "COLLAPSED")

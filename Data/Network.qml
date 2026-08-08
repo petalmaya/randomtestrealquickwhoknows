@@ -3,6 +3,8 @@ import Quickshell
 import Quickshell.Io
 import QtQuick
 
+import qs.Data as Dat
+
 // WiFi via nmcli (NetworkManager). Quickshell doesn't ship a native
 // NetworkManager service the way it does Bluetooth/Mpris/UPower, so this
 // just shells out to `nmcli` and parses its terse (-t) output.
@@ -94,10 +96,18 @@ Singleton {
     }
   }
 
+  // Background refresh of wifi status/signal while the panel is open. This
+  // used to run: true unconditionally, which meant an `nmcli` process got
+  // spawned every 15s forever, even with the panel closed and nobody
+  // looking at the network list - wasted work + a bit of needless wakeups.
+  // Gated on Globals.anyNetworkPanelOpen instead (same throttle pattern
+  // Resources.qml/Clock.qml already use for their own pollers), and
+  // triggeredOnStart means opening the panel on any screen fires an
+  // immediate refresh instead of waiting for the next 15s tick.
   Timer {
     interval: 15000
     repeat: true
-    running: true
+    running: Dat.Globals.anyNetworkPanelOpen
     triggeredOnStart: true
 
     onTriggered: root.refreshStatus()

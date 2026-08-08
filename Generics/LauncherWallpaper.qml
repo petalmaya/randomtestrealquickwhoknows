@@ -37,7 +37,6 @@ Item {
   property bool editingDefault: false
   readonly property string targetOutput: root.editingDefault ? "" : root.outputName
   readonly property string currentSrc: Dat.Config.wallpaperFor(root.targetOutput)
-  readonly property bool hasOverride: root.outputName != "" && Dat.Config.data.wallpapersByOutput && Dat.Config.data.wallpapersByOutput[root.outputName] !== undefined
 
   function pick(path) {
     Dat.Config.setWallpaperFor(root.targetOutput, path);
@@ -101,30 +100,6 @@ Item {
 
       Item {
         Layout.fillWidth: true
-      }
-
-      Rectangle {
-        Layout.preferredHeight: 26
-        color: Dat.Colors.current.surface_container
-        implicitWidth: resetText.contentWidth + 18
-        radius: 8
-        visible: !root.editingDefault && root.hasOverride
-
-        Text {
-          id: resetText
-
-          anchors.centerIn: parent
-          color: Dat.Colors.current.on_surface
-          font.pointSize: 9
-          text: "Reset"
-        }
-
-        Gen.MouseArea {
-          layerColor: Dat.Colors.current.on_surface
-          layerRadius: 8
-
-          onClicked: Dat.Config.clearWallpaperFor(root.outputName)
-        }
       }
 
       Rectangle {

@@ -90,6 +90,30 @@ General list (package manager agnostic):
 > make sure you are not creating `.config/quickshell/kurukurubar`,
 > in which case you will need to pass the arg `-c kurukurubar` in step 4.
 
+#### NixOS / flake
+
+This repo also ships its own standalone `flake.nix` (separate from, and
+much smaller than, the upstream Zaphkiel flake this fork originally came
+out of - no greeter, no home-manager, no rest-of-the-system opinions,
+just this bar):
+
+```sh
+nix run github:<you>/<this-repo>            # try it without installing
+nix profile install github:<you>/<this-repo> # install the `kurukurubar` binary
+```
+
+Or add it as a flake input and enable `programs.kurukurubar.enable = true;`
+via the exported `nixosModules.default` for a system-wide install. The
+module only puts the binary on `$PATH` - autostarting it is left to your
+compositor's own startup config (niri's `spawn-at-startup`, mangowc's
+autostart, a systemd `--user` unit, etc.), same as running `kurukurubar`
+by hand.
+
+**No greeter target.** Unlike upstream's Zaphkiel flake (which can build
+a greetd-based `kurukuruDM` greeter from `greeter.qml`), this flake only
+packages the logged-in-session bar - matches this fork not shipping
+`greeter.qml` at all (see below).
+
 ### Lock Screen and Foreground Isolation
 
 The lock screen requires a wallpaper to be set

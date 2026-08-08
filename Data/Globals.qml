@@ -128,8 +128,24 @@ Singleton {
   // onActWinNameChanged below - EXPANDED (small pill-with-content) if
   // there's no focused window to get out of the way of, COLLAPSED
   // otherwise.
+  //
+  // When reservedShell is on, the bar's whole point is to always occupy
+  // its reserved strip of screen space - COLLAPSED sets notchRect's
+  // opacity to 0 (see Layers/Notch.qml's state table), which reads as
+  // the bar just vanishing, and nothing was reliably re-expanding it
+  // afterwards (onActWinNameChanged below bails out early whenever
+  // reservedShell is on, so it never got a second chance to fix this up
+  // itself - only a keybind calling notchOpen()/notchToggle() again
+  // would). So: never let an IPC/keybind-driven close go all the way to
+  // COLLAPSED while reservedShell is enabled, floor it at EXPANDED
+  // instead, same as the reservedShellChanged handler below already
+  // does when the setting is first turned on.
   function notchClose(outputName) {
     const output = outputName || root._guessOutput();
+    if (Dat.Config.data.reservedShell) {
+      root.setNotchState(output, "EXPANDED");
+      return;
+    }
     root.setNotchState(output, root.actWinName == "desktop" ? "EXPANDED" : "COLLAPSED");
   }
 
